@@ -22,7 +22,7 @@ using static Angular5TF1.Data.DTO.AlleventsDto;
 
 namespace Angular5TF1.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Produces("application/json")]
     [Route("api/[controller]/[action]")]
     public class SearchController : BaseController

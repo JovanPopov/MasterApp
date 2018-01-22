@@ -9,6 +9,7 @@ namespace Angular5TF1.Data.Model
     {
         public int Id { get; set; }
         public string Text { get; set; }
+        public int SearchTermId { get; set; }
         public SearchTerm SearchTerm { get; set; }
     }
 }

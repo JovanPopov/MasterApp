@@ -1,5 +1,6 @@
 import { Component, Inject } from '@angular/core';
-import { Http, URLSearchParams } from '@angular/http';
+import { Http, URLSearchParams, Headers } from '@angular/http';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'home',
@@ -15,7 +16,7 @@ export class HomeComponent {
    
    
 
-    constructor(private http: Http, @Inject('BASE_URL') private baseUrl: string) { }
+    constructor(private http: Http, @Inject('BASE_URL') private baseUrl: string, private router: Router) { }
 
     ngOnInit() {
         this.searchResult = {
@@ -26,19 +27,23 @@ export class HomeComponent {
 
 
     search(title: string) {
-        this.loading = true;
-        let params: URLSearchParams = new URLSearchParams();
-        params.set('data', title);
-        this.http.get(this.baseUrl + 'api/search/search', { search: params })
-            .subscribe(result => {
-                this.searchResult = result.json() as SearchResult;
-                this.loading = false;
-            }, error => {
-                console.error(error);
-                this.loading = false;
-            }
-        );
-
+        if (title){
+            this.loading = true;
+            let params: URLSearchParams = new URLSearchParams();
+            params.set('data', title);
+            this.http.get(this.baseUrl + 'api/search/search', { search: params, headers : this.jwt() })
+                .subscribe(result => {
+                    this.searchResult = result.json() as SearchResult;
+                    this.loading = false;
+                }, error => {
+                    console.error(error);
+                    this.loading = false;
+                    if (error.status == 401) {
+                        this.router.navigate(['login']);
+                    }
+                }
+            );
+        }
     }
 
     sort(key: string) {
@@ -46,7 +51,15 @@ export class HomeComponent {
         this.reverse = !this.reverse;
     }
 
-
+    private jwt() {
+        // create authorization header with jwt token
+        const userStorage = localStorage.getItem('currentUser');
+        let currentUser = userStorage !== null ? JSON.parse(userStorage) : null;
+        if (currentUser && currentUser.token) {
+            let headers = new Headers({ 'Authorization': 'Bearer ' + currentUser.token });
+            return headers;
+        }
+    }
 
 }
 

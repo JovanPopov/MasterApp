@@ -11,9 +11,10 @@ using System;
 namespace Angular5TF1.Migrations.Data
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20180122101853_cascadeDelete")]
+    partial class cascadeDelete
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -73,7 +74,13 @@ namespace Angular5TF1.Migrations.Data
 
                     b.Property<string>("Term");
 
+                    b.Property<int?>("WikipediaId");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("WikipediaId")
+                        .IsUnique()
+                        .HasFilter("[WikipediaId] IS NOT NULL");
 
                     b.ToTable("SearchTerms");
                 });
@@ -83,14 +90,9 @@ namespace Angular5TF1.Migrations.Data
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("SearchTermId");
-
                     b.Property<string>("Text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("SearchTermId")
-                        .IsUnique();
 
                     b.ToTable("Wikipedias");
                 });
@@ -103,11 +105,11 @@ namespace Angular5TF1.Migrations.Data
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Angular5TF1.Data.Model.Wikipedia", b =>
+            modelBuilder.Entity("Angular5TF1.Data.Model.SearchTerm", b =>
                 {
-                    b.HasOne("Angular5TF1.Data.Model.SearchTerm", "SearchTerm")
-                        .WithOne("Wikipedia")
-                        .HasForeignKey("Angular5TF1.Data.Model.Wikipedia", "SearchTermId")
+                    b.HasOne("Angular5TF1.Data.Model.Wikipedia", "Wikipedia")
+                        .WithOne("SearchTerm")
+                        .HasForeignKey("Angular5TF1.Data.Model.SearchTerm", "WikipediaId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
