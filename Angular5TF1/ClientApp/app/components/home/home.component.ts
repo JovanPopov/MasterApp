@@ -11,7 +11,8 @@ export class HomeComponent {
     searchResult: SearchResult;
     key: string = 'name'; //set default
     reverse: boolean = false;
-    p: number = 1;
+    p1: number = 1;
+    p2: number = 1;
     loading = false;
    
    
@@ -21,7 +22,8 @@ export class HomeComponent {
     ngOnInit() {
         this.searchResult = {
             wiki: "",
-            allEvents : [] as Event[]
+            allEvents: [] as Event[],
+            tweets: [] as Tweet[]
         };
     }
 
@@ -66,6 +68,7 @@ export class HomeComponent {
 interface SearchResult {
     wiki: string;
     allEvents: Event[];
+    tweets: Tweet[];
 }
 
 interface Event {
@@ -74,4 +77,11 @@ interface Event {
     location: string;
     venue: string;
     url: string;
+}
+
+interface Tweet {
+    Author: string;
+    Date: string;
+    Text: string;
+    Url: string;
 }

@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using TweetSharp;
 using static Angular5TF1.Data.DTO.AlleventsDto;
 
 namespace Angular5TF1.Controllers
@@ -40,7 +41,7 @@ namespace Angular5TF1.Controllers
         {
             try
             {
-                SearchTerm searchTerm = context.SearchTerms.Include(x => x.Wikipedia).Include(x => x.Events).Where(x => x.Term == data).FirstOrDefault();
+                SearchTerm searchTerm = context.SearchTerms.Include(x => x.Wikipedia).Include(x => x.Events).Include(x => x.Tweets).Where(x => x.Term == data).FirstOrDefault();
 
                 if(searchTerm != null && (DateTime.UtcNow - searchTerm.SearchDate).TotalMinutes > 1)
                 {
@@ -59,10 +60,12 @@ namespace Angular5TF1.Controllers
                     //apis
                     List<Data.DTO.AlleventsDto.Event> events = AlleventsApi(data);
                     string wikiText = WikipediaApi(data).Result;
+                    List<TwitterStatus> tweets = TwitterApi(data);
 
                     //database persisting
-                    persistWiki(searchTerm, wikiText);
-                    persistEvents(searchTerm, events);
+                    PersistWiki(searchTerm, wikiText);
+                    PersistEvents(searchTerm, events);
+                    PersistTweetes(searchTerm, tweets);
 
                     context.SearchTerms.Add(searchTerm);
                     context.SaveChanges();
@@ -79,6 +82,12 @@ namespace Angular5TF1.Controllers
                         location = x.location,
                         venue = x.full_address,
                         url = x.event_url
+                    }).ToList(),
+                    tweets = searchTerm.Tweets.Select(x => new {
+                        x.Author,
+                        Date = x.Date != null? x.Date.ToString() : "",
+                        x.Text,
+                        x.Url
                     }).ToList()
                 };
 
@@ -91,7 +100,9 @@ namespace Angular5TF1.Controllers
            
         }
 
-     
+      
+
+
 
 
 
@@ -173,13 +184,28 @@ namespace Angular5TF1.Controllers
             }
         }
 
+
+        private List<TwitterStatus> TwitterApi(string data)
+        {
+            //TwitterService("consumer key", "consumer secret");
+            var service = new TwitterService(_configuration["TwConsumerKey"], _configuration["TwConsumerSecret"]);
+
+            //AuthenticateWith("Access Token", "AccessTokenSecret");
+            service.AuthenticateWith(_configuration["TwAccessToken"], _configuration["TwAccessTokenSecret"]);
+
+            TwitterSearchResult tweets = service.Search(options: new SearchOptions { Q = data, Count = 100 });
+            List<TwitterStatus> status = tweets.Statuses.ToList();
+            return status;
+        }
+
+
         #endregion
 
 
 
         #region persist
 
-        private void persistWiki(SearchTerm newTerm, string wikiText)
+        private void PersistWiki(SearchTerm newTerm, string wikiText)
         {
             Wikipedia wiki = new Wikipedia();
             wiki.Text = wikiText;
@@ -187,7 +213,7 @@ namespace Angular5TF1.Controllers
         }
 
 
-        private void persistEvents(SearchTerm newTerm, List<AlleventsDto.Event> events)
+        private void PersistEvents(SearchTerm newTerm, List<AlleventsDto.Event> events)
         {
             List<Data.Model.Event> dbEvents = new List<Data.Model.Event>();
 
@@ -212,7 +238,19 @@ namespace Angular5TF1.Controllers
             newTerm.Events = dbEvents;
         }
 
-        
+        private void PersistTweetes(SearchTerm newTerm, List<TwitterStatus> tweets)
+        {
+            List<Tweet> newTweets = new List<Tweet>();
+            newTweets = tweets.Select(x => new Tweet
+            {
+                Author = x.User.Name,
+                Date = x.CreatedDate,
+                Text = x.Text,
+                Url = "https://twitter.com/" + x.Author.ScreenName + "/status/" + x.IdStr
+            }).ToList();
+
+            newTerm.Tweets = newTweets;
+        }
 
         #endregion
 

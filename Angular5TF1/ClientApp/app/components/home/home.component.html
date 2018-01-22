@@ -45,14 +45,48 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let event of searchResult.allEvents | paginate: { itemsPerPage: 10, currentPage: p };">
+                <tr *ngFor="let event of searchResult.allEvents | paginate: { id: 'event', itemsPerPage: 10, currentPage: p1 };">
                     <td>{{event.name}}</td>
                     <td>{{event.time}}</td>
                     <td>{{event.location}}</td>
                     <td> <a href="{{event.url}}">Event url</a> </td>
                 </tr>
             </tbody>
-            <pagination-controls (pageChange)="p = $event"></pagination-controls>
+            <pagination-controls (pageChange)="p1 = $event" id="event"></pagination-controls>
+        </table>
+    </div>
+</div>
+
+
+<div class="panel panel-default">
+    <div class="panel-heading"><b>Tweeter</b></div>
+    <div class="panel-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th (click)="sort('Author')">
+                        Author
+                    </th>
+                    <th (click)="sort('time')">
+                        Time
+                    </th>
+                    <th (click)="sort('Text')">
+                        Text
+                    </th>
+                    <th (click)="sort('url')">
+                        Url
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let tweet of searchResult.tweets | paginate: { id: 'tweet', itemsPerPage: 10, currentPage: p2 };">
+                    <td>{{tweet.author}}</td>
+                    <td>{{tweet.date}}</td>
+                    <td>{{tweet.text}}</td>
+                    <td> <a href="{{tweet.url}}">Tweet url</a> </td>
+                </tr>
+            </tbody>
+            <pagination-controls (pageChange)="p2 = $event" id="tweet"></pagination-controls>
         </table>
     </div>
 </div>

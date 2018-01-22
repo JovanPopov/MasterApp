@@ -13,5 +13,6 @@ namespace Angular5TF1.Data.Model
 
         public Wikipedia Wikipedia { get; set; }
         public ICollection<Event> Events { get; set; } = new List<Event>();
+        public ICollection<Tweet> Tweets { get; set; } = new List<Tweet>();
     }
 }

@@ -14,6 +14,7 @@ namespace Angular5TF1.Data
         public DbSet<SearchTerm> SearchTerms { get; set; }
         public DbSet<Event> Events { get; set; }
         public DbSet<Wikipedia> Wikipedias { get; set; }
+        public DbSet<Tweet> Tweets { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +27,11 @@ namespace Angular5TF1.Data
            .HasMany(p => p.Events)
            .WithOne(b => b.SearchTerm)
            .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<SearchTerm>()
+            .HasMany(p => p.Tweets)
+            .WithOne(b => b.SearchTerm)
+            .OnDelete(DeleteBehavior.Cascade);
         }
 
     }
