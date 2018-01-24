@@ -7,8 +7,6 @@ import { RouterModule } from '@angular/router';
 import { AppComponent } from './components/app/app.component';
 import { NavMenuComponent } from './components/navmenu/navmenu.component';
 import { HomeComponent } from './components/home/home.component';
-import { FetchDataComponent } from './components/fetchdata/fetchdata.component';
-import { CounterComponent } from './components/counter/counter.component';
 
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
@@ -17,6 +15,8 @@ import { AuthGuard } from './_guards/auth.guard';
 import { AlertService } from './_services/alert.service';
 import { AuthenticationService } from './_services/authentication.service';
 import { AlertComponent } from './_directives/alert.component';
+import { UserService } from './_services/user.service';
+import { SearchService } from './_services/search.service';
 
 import { NgxPaginationModule } from 'ngx-pagination';
 
@@ -25,8 +25,6 @@ import { NgxPaginationModule } from 'ngx-pagination';
         AppComponent,
         AlertComponent,
         NavMenuComponent,
-        CounterComponent,
-        FetchDataComponent,
         HomeComponent,
         LoginComponent,
         RegisterComponent
@@ -39,8 +37,6 @@ import { NgxPaginationModule } from 'ngx-pagination';
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
-            { path: 'counter', component: CounterComponent, canActivate: [AuthGuard] },
-            { path: 'fetch-data', component: FetchDataComponent, canActivate: [AuthGuard] },
             { path: 'login', component: LoginComponent },
             { path: 'register', component: RegisterComponent },
             { path: '**', redirectTo: 'home' }
@@ -49,7 +45,9 @@ import { NgxPaginationModule } from 'ngx-pagination';
     providers: [
         AuthGuard,
         AlertService,
-        AuthenticationService
+        AuthenticationService,
+        UserService,
+        SearchService
     ]
 })
 export class AppModuleShared {

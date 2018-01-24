@@ -1,6 +1,9 @@
 import { Component, Inject } from '@angular/core';
-import { Http, URLSearchParams, Headers } from '@angular/http';
 import { Router } from '@angular/router';
+import { SearchResult } from '../../_models/SearchResult';
+import { Tweet } from '../../_models/Tweet';
+import { Event } from '../../_models/Event';
+import { SearchService } from '../../_services/search.service';
 
 @Component({
     selector: 'home',
@@ -17,7 +20,7 @@ export class HomeComponent {
    
    
 
-    constructor(private http: Http, @Inject('BASE_URL') private baseUrl: string, private router: Router) { }
+    constructor(@Inject('BASE_URL') private baseUrl: string, private router: Router, private searchService: SearchService) { }
 
     ngOnInit() {
         this.searchResult = {
@@ -31,9 +34,8 @@ export class HomeComponent {
     search(title: string) {
         if (title){
             this.loading = true;
-            let params: URLSearchParams = new URLSearchParams();
-            params.set('data', title);
-            this.http.get(this.baseUrl + 'api/search/search', { search: params, headers : this.jwt() })
+
+            this.searchService.search(title)
                 .subscribe(result => {
                     this.searchResult = result.json() as SearchResult;
                     this.loading = false;
@@ -48,40 +50,11 @@ export class HomeComponent {
         }
     }
 
-    sort(key: string) {
-        this.key = key;
-        this.reverse = !this.reverse;
-    }
+    //sort(key: string) {
+    //    this.key = key;
+    //    this.reverse = !this.reverse;
+    //}
 
-    private jwt() {
-        // create authorization header with jwt token
-        const userStorage = localStorage.getItem('currentUser');
-        let currentUser = userStorage !== null ? JSON.parse(userStorage) : null;
-        if (currentUser && currentUser.token) {
-            let headers = new Headers({ 'Authorization': 'Bearer ' + currentUser.token });
-            return headers;
-        }
-    }
+  
 
-}
-
-interface SearchResult {
-    wiki: string;
-    allEvents: Event[];
-    tweets: Tweet[];
-}
-
-interface Event {
-    name: string;
-    time: string;
-    location: string;
-    venue: string;
-    url: string;
-}
-
-interface Tweet {
-    Author: string;
-    Date: string;
-    Text: string;
-    Url: string;
 }

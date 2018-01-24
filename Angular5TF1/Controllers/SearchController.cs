@@ -12,6 +12,7 @@ using System.Web;
 using Angular5TF1.Data;
 using Angular5TF1.Data.DTO;
 using Angular5TF1.Data.Model;
+using Angular5TF1.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -30,11 +31,13 @@ namespace Angular5TF1.Controllers
     {
         private readonly IConfiguration _configuration;
         private  DataContext context;
+        private IApisService _apisService;
 
-        public SearchController(IConfiguration configuration, DataContext dataContext)
+        public SearchController(IConfiguration configuration, DataContext dataContext, IApisService apisService)
         {
             context = dataContext;
             _configuration = configuration;
+            _apisService = apisService;
         }
 
         public IActionResult Search(string data)
@@ -58,14 +61,14 @@ namespace Angular5TF1.Controllers
                     searchTerm.SearchDate = DateTime.UtcNow;
 
                     //apis
-                    List<Data.DTO.AlleventsDto.Event> events = AlleventsApi(data);
-                    string wikiText = WikipediaApi(data).Result;
-                    List<TwitterStatus> tweets = TwitterApi(data);
+                    List<Data.DTO.AlleventsDto.Event> events = _apisService.Allevents(data);
+                    string wikiText = _apisService.Wikipedia(data).Result;
+                    List<TwitterStatus> tweets = _apisService.Twitter(data);
 
-                    //database persisting
-                    PersistWiki(searchTerm, wikiText);
-                    PersistEvents(searchTerm, events);
-                    PersistTweetes(searchTerm, tweets);
+                    //database
+                    WikiDb(searchTerm, wikiText);
+                    EventsDb(searchTerm, events);
+                    TweetesDb(searchTerm, tweets);
 
                     context.SearchTerms.Add(searchTerm);
                     context.SaveChanges();
@@ -75,7 +78,7 @@ namespace Angular5TF1.Controllers
                 var result = new
                 {
                     wiki = searchTerm.Wikipedia != null ? searchTerm.Wikipedia.Text : "",
-                    allEvents = searchTerm.Events.Select(x => new
+                    allEvents = searchTerm.Events.OrderBy(x => x.start_time).Select(x => new
                     {
                         name = x.eventname,
                         time = x.start_time_display,
@@ -83,7 +86,7 @@ namespace Angular5TF1.Controllers
                         venue = x.full_address,
                         url = x.event_url
                     }).ToList(),
-                    tweets = searchTerm.Tweets.Select(x => new {
+                    tweets = searchTerm.Tweets.OrderBy(x => x.Date).Select(x => new {
                         x.Author,
                         Date = x.Date != null? x.Date.ToString() : "",
                         x.Text,
@@ -100,112 +103,10 @@ namespace Angular5TF1.Controllers
            
         }
 
-      
 
+        #region db
 
-
-
-
-        #region helpers
-
-        private List<Data.DTO.AlleventsDto.Event> AlleventsApi(string data)
-        {
-            var client = new HttpClient();
-            var queryString = HttpUtility.ParseQueryString(string.Empty);
-
-            string key = _configuration["AllEventsKey"];
-            // Request headers
-            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", key);
-
-            // Request parameters
-            queryString["query"] = data;
-            //queryString["latitude"] = "{string}";
-            //queryString["longitude"] = "{string}";
-            //queryString["city"] = "{string}";
-            //queryString["page"] = "{string}";
-            var uri = "https://api.allevents.in/events/search/?" + queryString;
-
-            HttpResponseMessage response;
-
-            // Request body
-            byte[] byteData = Encoding.UTF8.GetBytes("{body}");
-
-            using (var content = new ByteArrayContent(byteData))
-            {
-                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                response = client.PostAsync(uri, content).Result;
-                //var Text = response.Content.ReadAsStringAsync();
-
-
-                //var readAsStringAsync = response.Content.ReadAsStringAsync();
-                //var bla = readAsStringAsync.Result;
-
-                //var yourTypeInstance = await response.Content.ReadAsAsync<RootObject>().Result();
-
-
-                List<Data.DTO.AlleventsDto.Event> allevents = new List<Data.DTO.AlleventsDto.Event>();
-                if ((int)response.StatusCode == 200)
-                {
-                    string stringData = response.Content.ReadAsStringAsync().Result;
-                    List<Data.DTO.AlleventsDto.Event> apiData = JsonConvert.DeserializeObject<RootObject>(stringData).data;
-                    if (apiData != null) allevents = apiData;
-                }
-
-                return allevents;
-            }
-
-        }
-
-
-        private async Task<string> WikipediaApi(string data)
-        {
-            string uri = $"https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&titles={data}&exintro&redirects=1";
-            var client = new HttpClient();
-            
-            HttpResponseMessage response = await client.GetAsync(uri);
-            var resultText = response.Content.ReadAsStringAsync().Result;
-            //string s1 = resultText.Substring(resultText.LastIndexOf("extract"));
-            //string s2 = s1.Substring(s1.LastIndexOf("<p>"));
-            //s2 =  s2.Remove(s2.IndexOf("</p>") + 4);
-            var index = resultText.IndexOf("extract");
-            if (index == -1)
-            {
-                return "no results";
-            }
-            else
-            {
-                string result = resultText.Substring(index + 10);
-                result = result.Remove(result.Length - 5);
-                result = result.Replace(@"\n", "<br />");
-                //string replacement = Regex.Replace(result, @"\t|\n|\r", "");
-                
-                return result;
-                
-            }
-        }
-
-
-        private List<TwitterStatus> TwitterApi(string data)
-        {
-            //TwitterService("consumer key", "consumer secret");
-            var service = new TwitterService(_configuration["TwConsumerKey"], _configuration["TwConsumerSecret"]);
-
-            //AuthenticateWith("Access Token", "AccessTokenSecret");
-            service.AuthenticateWith(_configuration["TwAccessToken"], _configuration["TwAccessTokenSecret"]);
-
-            TwitterSearchResult tweets = service.Search(options: new SearchOptions { Q = data, Count = 100 });
-            List<TwitterStatus> status = tweets.Statuses.ToList();
-            return status;
-        }
-
-
-        #endregion
-
-
-
-        #region persist
-
-        private void PersistWiki(SearchTerm newTerm, string wikiText)
+        private void WikiDb(SearchTerm newTerm, string wikiText)
         {
             Wikipedia wiki = new Wikipedia();
             wiki.Text = wikiText;
@@ -213,7 +114,7 @@ namespace Angular5TF1.Controllers
         }
 
 
-        private void PersistEvents(SearchTerm newTerm, List<AlleventsDto.Event> events)
+        private void EventsDb(SearchTerm newTerm, List<AlleventsDto.Event> events)
         {
             List<Data.Model.Event> dbEvents = new List<Data.Model.Event>();
 
@@ -238,7 +139,7 @@ namespace Angular5TF1.Controllers
             newTerm.Events = dbEvents;
         }
 
-        private void PersistTweetes(SearchTerm newTerm, List<TwitterStatus> tweets)
+        private void TweetesDb(SearchTerm newTerm, List<TwitterStatus> tweets)
         {
             List<Tweet> newTweets = new List<Tweet>();
             newTweets = tweets.Select(x => new Tweet

@@ -29,6 +29,20 @@
     <Compile Remove="Migrations\20180117101218_IdentityInit.Designer.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="ClientApp\app\_models\Event.ts" />
+    <None Remove="ClientApp\app\_models\SearchResult.ts" />
+    <None Remove="ClientApp\app\_models\Tweet.ts" />
+    <None Remove="ClientApp\app\_services\search.service.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\app\_models\Event.ts" />
+    <TypeScriptCompile Include="ClientApp\app\_models\SearchResult.ts" />
+    <TypeScriptCompile Include="ClientApp\app\_models\Tweet.ts" />
+    <TypeScriptCompile Include="ClientApp\app\_services\search.service.ts" />
+  </ItemGroup>
+
   <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('wwwroot\dist') ">
     <!-- Ensure Node.js is installed -->
     <Exec Command="node --version" ContinueOnError="true">

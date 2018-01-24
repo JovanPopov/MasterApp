@@ -1,4 +1,5 @@
 using Angular5TF1.Data;
+using Angular5TF1.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -41,11 +42,18 @@ namespace Angular5TF1
 
 
             // ===== Add Identity ========
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole>( options => {
+                options.Password.RequiredLength = 6;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireDigit = false;
+
+            })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-
+          
 
 
             // ===== Add Jwt Authentication ========
@@ -74,6 +82,9 @@ namespace Angular5TF1
 
 
             services.AddMvc();
+
+            services.AddTransient<IApisService, ApisService>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
