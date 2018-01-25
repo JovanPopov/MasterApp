@@ -17,7 +17,7 @@
                         <span class='glyphicon glyphicon-home'></span> Search
                     </a>
                 </li>
-                <li >
+                <li *ngIf="userLogedIn()">
                     <a [routerLink]="['/login']">
                         <span class='glyphicon glyphicon-log-out'></span> Logout
                     </a>

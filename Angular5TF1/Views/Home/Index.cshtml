@@ -2,7 +2,34 @@
     ViewData["Title"] = "Home Page";
 }
 
-<app asp-prerender-module="ClientApp/dist/main-server">Loading...</app>
+@*<app asp-prerender-module="ClientApp/dist/main-server">Loading...</app>*@
+<app>
+    <div style="
+            transition: opacity .8s ease-in-out;
+            position: fixed;
+            height: 100%;
+            width: 100%;
+            top: 0;
+            left: 0;
+            background: #000;
+            opacity: 1;
+            z-index: 100;
+            ">
+        <h1 style="
+        color: #EEE;
+        position: absolute;
+        top: 50%;
+        width: 100%;
+        text-align: center;">
+            Loading...
+        </h1>
+    </div>
+       
+</app>
+
+
+
+
 
 <script src="~/dist/vendor.js" asp-append-version="true"></script>
 @section scripts {

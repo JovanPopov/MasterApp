@@ -9,6 +9,6 @@ export class UserService {
     
 
     create(user: User) {
-        return this.http.post(this.baseUrl + '/api/account/register', user);
+        return this.http.post(this.baseUrl + 'api/account/register', user);
     }
 }

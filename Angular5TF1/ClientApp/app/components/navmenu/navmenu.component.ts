@@ -6,4 +6,14 @@ import { Component } from '@angular/core';
     styleUrls: ['./navmenu.component.css']
 })
 export class NavMenuComponent {
+
+    userLogedIn() {
+        if (typeof window !== 'undefined' && localStorage.getItem('currentUser')) {
+            // logged in so return true
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

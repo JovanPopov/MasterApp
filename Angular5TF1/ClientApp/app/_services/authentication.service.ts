@@ -9,7 +9,7 @@ export class AuthenticationService {
     constructor(private http: Http, @Inject('BASE_URL') private baseUrl: string) { }
 
     login(username: string, password: string ) {
-        return this.http.post(this.baseUrl + '/api/account/login', { username: username, password: password })
+        return this.http.post(this.baseUrl + 'api/account/login', { username: username, password: password })
             .map((response: Response) => {
                 // login successful if there's a jwt token in the response
                 let user = response.json();
