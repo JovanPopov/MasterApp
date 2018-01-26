@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Angular5TF1.Data.DTO;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TweetSharp;
 using static Angular5TF1.Data.DTO.AlleventsDto;
+using static Angular5TF1.Data.DTO.WikipediaSearchDto;
 
 namespace Angular5TF1.Services
 {
@@ -56,7 +58,7 @@ namespace Angular5TF1.Services
                 if ((int)response.StatusCode == 200)
                 {
                     string stringData = response.Content.ReadAsStringAsync().Result;
-                    List<Event> apiData = JsonConvert.DeserializeObject<RootObject>(stringData).data;
+                    List<Event> apiData = JsonConvert.DeserializeObject<AlleventsDto.RootObject>(stringData).data;
                     if (apiData != null) allevents = apiData;
                 }
 
@@ -68,8 +70,25 @@ namespace Angular5TF1.Services
 
         public async Task<string> Wikipedia(string data)
         {
-            string uri = $"https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&titles={data}&exintro&redirects=1";
             var client = new HttpClient();
+
+            string searchUrl = $"https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&utf8=1&srsearch=intitle:{data}";
+            HttpResponseMessage searchResponse = await client.GetAsync(searchUrl);
+            string stringData = searchResponse.Content.ReadAsStringAsync().Result;
+            WikipediaSearchDto.RootObject apiData = JsonConvert.DeserializeObject<WikipediaSearchDto.RootObject>(stringData);
+
+            List<Search> pages = new List<Search>();
+
+            if(apiData != null && apiData.query != null)
+            {
+                pages = apiData.query.search;
+            }
+
+            string searchTermFromResult = pages[0] != null ? pages[0].title : data;
+
+
+            string uri = $"https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&titles={searchTermFromResult}&exintro&redirects=1&utf8";
+            
 
             HttpResponseMessage response = await client.GetAsync(uri);
             var resultText = response.Content.ReadAsStringAsync().Result;
