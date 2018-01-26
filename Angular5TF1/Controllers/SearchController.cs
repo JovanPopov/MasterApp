@@ -46,7 +46,7 @@ namespace Angular5TF1.Controllers
             {
                 SearchTerm searchTerm = context.SearchTerms.Include(x => x.Wikipedia).Include(x => x.Events).Include(x => x.Tweets).Where(x => x.Term == data).FirstOrDefault();
 
-                if(searchTerm != null && (DateTime.UtcNow - searchTerm.SearchDate).TotalMinutes > 1)
+                if(searchTerm != null && (DateTime.UtcNow - searchTerm.SearchDate).TotalDays > 7)
                 {
                     context.SearchTerms.Remove(searchTerm);
                     //context.SaveChanges();
