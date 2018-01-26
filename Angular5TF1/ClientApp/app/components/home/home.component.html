@@ -2,9 +2,9 @@
 <div class="row">
     <div class="col-xs-6 col-md-4">
         <div class="input-group">
-            <input type="text" class="form-control" placeholder="Search" #searchInput />
+            <input type="text" class="form-control" placeholder="Search" (keyup.enter)="search(searchInput.value)" #searchInput />
             <div class="input-group-btn">
-                <button class="btn btn-default" type="submit" (click)="search(searchInput.value)" [disabled] = "loading">
+                <button class="btn btn-default" type="submit" (click)="search(searchInput.value)"  [disabled] = "loading">
                     <span class="glyphicon glyphicon-search" *ngIf="!loading"></span>
                     <span *ngIf="loading"> <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" /></span>
                 </button>
@@ -17,7 +17,7 @@
 <div class="panel panel-default" *ngIf="searchResult.wiki">
     <div class="panel-heading"><b>Wikipedia</b></div>
     <div class="panel-body"><p innerHTML="{{searchResult.wiki}}"></p></div>
-    <div class="panel-footer"><a href="https://en.wikipedia.org/wiki/{{searchInput.value}}">See more</a></div>
+    <div class="panel-footer"><a href="https://en.wikipedia.org/w/index.php?search={{searchInput.value}}" target="_blank">See more</a></div>
 </div>
 
 <div class="panel panel-default" *ngIf="searchResult.allEvents?.length > 0">
@@ -49,7 +49,7 @@
                     <td>{{event.name}}</td>
                     <td>{{event.time}}</td>
                     <td>{{event.location}}</td>
-                    <td> <a href="{{event.url}}">Event url</a> </td>
+                    <td> <a href="{{event.url}}" target="_blank">Event url</a> </td>
                 </tr>
             </tbody>
             <pagination-controls (pageChange)="p1 = $event" id="event"></pagination-controls>
@@ -83,7 +83,7 @@
                     <td>{{tweet.author}}</td>
                     <td>{{tweet.date}}</td>
                     <td>{{tweet.text}}</td>
-                    <td> <a href="{{tweet.url}}">Tweet url</a> </td>
+                    <td> <a href="{{tweet.url}}" target="_blank">Tweet url</a> </td>
                 </tr>
             </tbody>
             <pagination-controls (pageChange)="p2 = $event" id="tweet"></pagination-controls>
