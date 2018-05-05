@@ -100,10 +100,12 @@ namespace Angular5TF1.Services
             else
             {
                 string result = resultText.Substring(index + 10);
-                result = result.Remove(result.Length - 5);
-                result = result.Replace(@"\n", "<br />");
+                var index2 = result.IndexOf("extract");
+                string result2 = result.Substring(index2 + 10);
+                result2 = result2.Remove(result2.Length - 5);
+                result2 = result2.Replace(@"\n", "<br />");
 
-                return result;
+                return result2;
 
             }
         }

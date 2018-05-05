@@ -59,7 +59,7 @@
 
 
 <div class="panel panel-default" *ngIf="searchResult.tweets?.length > 0">
-    <div class="panel-heading"><b>Tweeter</b></div>
+    <div class="panel-heading"><b>Twitter</b></div>
     <div class="panel-body">
         <table class="table">
             <thead>
@@ -83,7 +83,7 @@
                     <td>{{tweet.author}}</td>
                     <td>{{tweet.date}}</td>
                     <td>{{tweet.text}}</td>
-                    <td> <a href="{{tweet.url}}" target="_blank">Tweet url</a> </td>
+                    <td> <a href="{{tweet.url}}" target="_blank">Twitt url</a> </td>
                 </tr>
             </tbody>
             <pagination-controls (pageChange)="p2 = $event" id="tweet"></pagination-controls>
